@@ -1,4 +1,5 @@
-import {getAcessToken,getUserId,getUserInfo} from './api/thirdApi';
+import {getAcessToken,getUserId,getUserInfo,getCorpId} from './api/thirdApi';
+//import {getAcessToken,getUserId,getUserInfo} from './api/thirdApi';
 import store from './store';
 import {setToken,getToken} from './utils/cookie';
 import {searchUser} from './api/userApi';
@@ -40,29 +41,39 @@ export async function redirectNewUrl() {
 // 若locationStorage不存在qyUserInfo且地址栏中有code，则需要重新获取用户信息
 
 let currentUrl = window.location.href;
-//let qyUserInfo = JSON.parse(localStorage.getItem('qyUserInfo'));
-//if(currentUrl.indexOf('code=') !== -1 && localStorage.getItem('qyUserInfo')===null) {
+
+let localStorageUserInfo = JSON.parse(localStorage.getItem('qyUserInfo'));
+
+// 若本地有存储，但存储的userIdentify为null，则清空缓存
+if(localStorageUserInfo != null && localStorageUserInfo.userIdentify === null) {
+  localStorage.setItem('qyUserInfo',null)
+}
+
 if(currentUrl.indexOf('code=') !== -1 && (localStorage.getItem('qyUserInfo')===null )) {
     const code = currentUrl.split('code=')[1].split('&')[0];
     let currentAccessToken = getToken();
     // 通过code获得用户userId
     getUserId(currentAccessToken,code).then((res)=>{
-      let userId = res.UserId;
-      // 获取用户的详细信息
-      getUserInfo(currentAccessToken,userId).then((res)=>{
-        let userParam = {
-          "department": res.department.join(','),
-          "other": res.alias,
-          "userIdentify": res.userid,
-          "userName": res.name
-        }
-        // 把获取的信息存储于本地
-        localStorage.setItem('qyUserInfo',JSON.stringify(userParam));
-        // 用户进入许可申请系统
-        searchUser(userParam).then(async (res)=>{
-          await store.commit('setUserInfo',res);
+      if(res.errmsg === 'ok') {
+        let userId = res.UserId;
+        // 获取用户的详细信息
+        getUserInfo(currentAccessToken,userId).then((res)=>{
+          if(res.errmsg === 'ok') {
+            let userParam = {
+              "department": res.department.join(','),
+              "other": res.alias,
+              "userIdentify": res.userid,
+              "userName": res.name
+            }
+            // 把获取的信息存储于本地
+            localStorage.setItem('qyUserInfo',JSON.stringify(userParam));
+            // 用户进入许可申请系统
+            searchUser(userParam).then(async (res)=>{
+              await store.commit('setUserInfo',res);
+            })
+          } 
         })
-      })
+      }
     })
 } else if(localStorage.getItem('qyUserInfo') === null ) {
     qyFreeLogin();

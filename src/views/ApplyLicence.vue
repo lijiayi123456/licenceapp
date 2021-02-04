@@ -12,6 +12,9 @@
                 <el-form-item prop="proposer" label="申请人">
                     <el-input  v-model="licenceForm.proposer" disabled ></el-input>
                 </el-form-item>
+                <el-form-item prop="department" label="部门名称">
+                    <el-input  v-model="licenceForm.department" disabled ></el-input>
+                </el-form-item>
                 <el-form-item prop="customerName" label="客户名称">
                     <el-input  v-model="licenceForm.customerName" :disabled="disabledEdit" ></el-input>
                 </el-form-item>
@@ -114,6 +117,7 @@ export default {
         if(this.$route.query.licenceDetail) {
             let licenceDetail = this.$route.query.licenceDetail
             this.licenceForm.proposer = licenceDetail.userIdentify.userName;
+            this.licenceForm.department = licenceDetail.userIdentify.department;
             this.licenceForm.orderIdentify = licenceDetail.orderIdentify
             this.licenceForm.customerName = licenceDetail.customerName
             this.licenceForm.programName = licenceDetail.programName
@@ -142,10 +146,8 @@ export default {
         // 若该值为空，则需要从store中去拿
         // 若该值不为空,值已从路由中拿到值，不需要重新赋值
         if(this.licenceForm.proposer === '') {
-            //this.currentUserInfo = JSON.parse(localStorage.getItem('qyUserInfo'));
             this.licenceForm.proposer = this.currentUserInfo.userName;
-            // let currentUserInfo1= JSON.parse(localStorage.getItem('qyUserInfo'));
-            // this.licenceForm.proposer = currentUserInfo1.userName;
+            this.licenceForm.department = this.currentUserInfo.department; // 获取部门
         }
     },
     data() {
@@ -260,7 +262,7 @@ export default {
                         "customerName": this.licenceForm.customerName,
                         "description": this.licenceForm.description,
                         "licenseScope": this.selectedModules,
-                        "programDepartment": this.currentUserInfo.department,
+                        "programDepartment": '',
                         "programName": this.licenceForm.programName,
                         "userIdentify": this.currentUserInfo.userIdentify,
                         "validPeriod": this.licenceForm.validPeriod,

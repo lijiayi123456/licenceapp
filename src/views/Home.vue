@@ -183,8 +183,7 @@ export default {
       adminApproval() {
         this.operation = 'approval';
         this.activeName = '0';
-        this.getOrderList(0);
-    
+        this.getOrderList(0);        
       },
       // 返回首页
       goBackHome() {
