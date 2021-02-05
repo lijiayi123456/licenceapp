@@ -36,20 +36,20 @@ export async function redirectNewUrl() {
     window.location.href = newUrl;
 }
 
-//localStorage.setItem('qyUserInfo',null)
-
 // 若locationStorage不存在qyUserInfo且地址栏中有code，则需要重新获取用户信息
 
 let currentUrl = window.location.href;
 
-let localStorageUserInfo = JSON.parse(localStorage.getItem('qyUserInfo'));
+let localStorageUserInfo = JSON.parse(sessionStorage.getItem('qyUserInfo'));
 
 // 若本地有存储，但存储的userIdentify为null，则清空缓存
-if(localStorageUserInfo != null && localStorageUserInfo.userIdentify === null) {
-  localStorage.setItem('qyUserInfo',null)
+if(localStorageUserInfo != null) {
+  if(localStorageUserInfo.userIdentify === undefined) {
+    sessionStorage.setItem('qyUserInfo',null)
+  }
 }
 
-if(currentUrl.indexOf('code=') !== -1 && (localStorage.getItem('qyUserInfo')===null )) {
+if(currentUrl.indexOf('code=') !== -1 && (JSON.parse(sessionStorage.getItem('qyUserInfo'))===null)) {
     const code = currentUrl.split('code=')[1].split('&')[0];
     let currentAccessToken = getToken();
     // 通过code获得用户userId
@@ -60,13 +60,13 @@ if(currentUrl.indexOf('code=') !== -1 && (localStorage.getItem('qyUserInfo')===n
         getUserInfo(currentAccessToken,userId).then((res)=>{
           if(res.errmsg === 'ok') {
             let userParam = {
-              "department": res.department.join(','),
+              "department": res.department[0],
               "other": res.alias,
               "userIdentify": res.userid,
               "userName": res.name
             }
             // 把获取的信息存储于本地
-            localStorage.setItem('qyUserInfo',JSON.stringify(userParam));
+            sessionStorage.setItem('qyUserInfo',JSON.stringify(userParam));
             // 用户进入许可申请系统
             searchUser(userParam).then(async (res)=>{
               await store.commit('setUserInfo',res);
@@ -75,11 +75,11 @@ if(currentUrl.indexOf('code=') !== -1 && (localStorage.getItem('qyUserInfo')===n
         })
       }
     })
-} else if(localStorage.getItem('qyUserInfo') === null ) {
+} else if(JSON.parse(sessionStorage.getItem('qyUserInfo')) === null ) {
     qyFreeLogin();
 } else {
-    let qyUserInfo = JSON.parse(localStorage.getItem('qyUserInfo'))
-    searchUser(qyUserInfo).then(async (res)=>{
-        await store.commit('setUserInfo',res);
-    })
+  let qyUserInfo = JSON.parse(sessionStorage.getItem('qyUserInfo'))
+  searchUser(qyUserInfo).then(async (res)=>{
+    await store.commit('setUserInfo',res);
+  })
 }

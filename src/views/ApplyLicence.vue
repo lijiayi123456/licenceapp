@@ -291,6 +291,8 @@ export default {
                         }
                     })
                 }
+            } else {
+                this.$message.warning('请输入完整信息!');
             }
         },
 

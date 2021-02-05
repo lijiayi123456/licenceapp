@@ -70,7 +70,8 @@ export default {
                 res.items.forEach((element) => {
                   this.productModulesDict[element.name] = element.modules;
                 });
-                this.productName = Object.keys(this.productModulesDict)[0];
+                //this.productName = Object.keys(this.productModulesDict)[0];  // 默认选中第一个
+                this.productName = '';  // 默认给空值
             })
         },
         // 确认选择的数据
