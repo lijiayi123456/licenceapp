@@ -60,6 +60,7 @@ if(currentUrl.indexOf('code=') !== -1 && (JSON.parse(sessionStorage.getItem('qyU
         getUserInfo(currentAccessToken,userId).then((res)=>{
           if(res.errmsg === 'ok') {
             let userParam = {
+              //"department": 370,
               "department": res.department[0],
               "other": res.alias,
               "userIdentify": res.userid,

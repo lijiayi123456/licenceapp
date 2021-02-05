@@ -167,8 +167,11 @@ export default {
         //     }
         // };
         const validateApplicationCode = (rule, value, callback) => {
-            if (value.length < 32) {
-                callback(new Error('申请码长度最少为32字符'));
+            value = value.replace(/ /g,'');  // 去掉value中的空格
+            if (value.length !=32) {
+                callback(new Error('无效的申请码'));
+            } else if(this.isValidCode(value) === false) {
+                callback(new Error('无效的申请码'))
             } else {
                 callback();
             }
@@ -423,6 +426,18 @@ export default {
                 }
             })
             return mergeModules;
+        },
+        // 判断是否是有效的许可码，判断所有的字符串是否是16进制的
+        isValidCode(code) {
+            let valid = true;
+            let newCode = code.toUpperCase();  //全部转为大写字母
+            const char16 = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+            newCode.split("").forEach((c)=>{
+                if(char16.includes(c) === false) {
+                    valid = false;
+                }
+            }) 
+            return valid;
         }
     }
 }
